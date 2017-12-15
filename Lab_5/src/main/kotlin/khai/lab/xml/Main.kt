@@ -43,42 +43,121 @@ class XMLModifier(file_name: String){
         cities_name_node.text = "Название города"
 
         //Нахождение нескольких узловых элементов
-        val cities_nodes = doc.selectNodes("/cities/city").map {
-            println((it as Element).attributeValue("name"))
-            println(it.text)
-            //it.text = "Упс! Удалились описание городов"
-        }
+        //val cities_nodes = doc.selectNodes("/cities/city").map {
+        //    println((it as Element).attributeValue("name"))
+        //    println(it.text)
+        //    //it.text = "Упс! Удалились описание городов"
+        //}
 
         //Добавление новых элементов
         // Способ 1
-        val new_element = DocumentHelper.createElement("countries")
-        new_element.text = "Страны"
-        root.add(new_element)
+        //val new_element = DocumentHelper.createElement("continent")
+        //new_element.text = "Страны"
+        //root.add(new_element)
         //Способ 2
-        root.addElement("continents")
+        //root.addElement("continents")
 
 
         fun filter_by_population(doc: Document) {
-            val cities_nodes2 = doc.selectNodes("/cities/city").map {
+            val cities_nodes = doc.selectNodes("/cities/city").map {
                 if ((it as Element).attributeValue("population").toInt()>=20000000) {
-                    println((it as Element).attributeValue("name"))
-                    println("Население: "+(it as Element).attributeValue("population"))
+                    println((it).attributeValue("name"))
+                    println("Население: "+(it).attributeValue("population"))
                     println(it.text)
                 }
-                else if ((it as Element).attributeValue("population").toInt()<20000000) {
-                it.remove(it.attribute("city"))
+                else if ((it).attributeValue("population").toInt()<20000000) {
+                    it.remove(it.attribute("text"))
                 }
+            }
+        }
+
+        fun calc_square_percent(doc: Document) {
+            var all_square = 0.0
+            var cities_nodes = doc.selectNodes("/cities/city").map {
+               var current_square = (it as Element).attributeValue("square").toDouble()
+                all_square+=current_square
+            }
+            cities_nodes = doc.selectNodes("/cities/city").map {
+                var current_square = ((it as Element).attributeValue("square").toDouble())
+                var current_square_percent = String.format("%.2f",((current_square/all_square)*100))
+                var square_percent_adder = (it).addAttribute("square_percent", current_square_percent)
+            }
+        }
+
+        fun group_by_continent(doc: Document) {
+
+            var continent = DocumentHelper.createElement("continent")
+            root.add(continent)
+            var cities_nodes = doc.selectNodes("/cities/city").map {
+                if ((it as Element).attributeValue("continent")=="Азия") {
+                    val city = DocumentHelper.createElement("city")
+                    continent.add(city)
+                    var new = it
+                    val cities_nodes2 = doc.selectNodes("/cities/continent/city").map {
+                        city.addAttribute("name", new.attributeValue("name"))
+                        city.addAttribute("population", new.attributeValue("population"))
+                        city.addAttribute("square", new.attributeValue("square"))
+                        city.addAttribute("population_density", new.attributeValue("population_density"))
+                        city.addAttribute("country", new.attributeValue("country"))
+                        city.text = new.text
+                    }
+                }
+            }
+            continent.addAttribute("name", "Азия")
+
+            continent = DocumentHelper.createElement("continent")
+            root.add(continent)
+            cities_nodes = doc.selectNodes("/cities/city").map {
+            if ((it as Element).attributeValue("continent")=="Африка") {
+                val city = DocumentHelper.createElement("city")
+                continent.add(city)
+                var new = it
+                val cities_nodes2 = doc.selectNodes("/cities/continent/city").map {
+                    city.addAttribute("name", new.attributeValue("name"))
+                    city.addAttribute("population", new.attributeValue("population"))
+                    city.addAttribute("square", new.attributeValue("square"))
+                    city.addAttribute("population_density", new.attributeValue("population_density"))
+                    city.addAttribute("country", new.attributeValue("country"))
+                    city.text = new.text
+                }
+            }
+            }
+            continent.addAttribute("name", "Африка")
+
+            continent = DocumentHelper.createElement("continent")
+            root.add(continent)
+            cities_nodes = doc.selectNodes("/cities/city").map {
+                if ((it as Element).attributeValue("continent")=="Европа") {
+                    val city = DocumentHelper.createElement("city")
+                    continent.add(city)
+                    var new = it
+                    val cities_nodes2 = doc.selectNodes("/cities/continent/city").map {
+                        city.addAttribute("name", new.attributeValue("name"))
+                        city.addAttribute("population", new.attributeValue("population"))
+                        city.addAttribute("square", new.attributeValue("square"))
+                        city.addAttribute("population_density", new.attributeValue("population_density"))
+                        city.addAttribute("country", new.attributeValue("country"))
+                        city.text = new.text
+                    }
+                }
+            }
+            continent.addAttribute("name", "Европа")
+
+            val cities_nodes3 = doc.selectNodes("/cities/city").map {
+                (it as Element).detach()
             }
         }
 
         //Применение функций, задекларированных в интерфейсах к документу
         with(doc) {
             //some_fun(this)
-            filter_by_population(this)
+            //filter_by_population(this)
+            //calc_square_percent(this)
+            group_by_continent(this)
         }
 
         //Запись нового xml-файла
-        val writer = XMLWriter(FileOutputStream("./src/main/resources/lab_remastered.xml"),
+        val writer = XMLWriter(FileOutputStream("./src/main/resources/lab_remastered2.xml"),
                 OutputFormat.createPrettyPrint())
         writer.write(doc)
         writer.close()

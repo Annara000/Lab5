@@ -1,12 +1,14 @@
 package khai.lab.xml
 
 import org.dom4j.Document
+import org.dom4j.Element
 
 /**
  * Отфильтровать города (cities) по количеству населения и убрать несоответсующие города из документа
  */
 interface FilterByPopulation {
     fun filter_by_population(doc: Document)
+
 }
 
 /**
