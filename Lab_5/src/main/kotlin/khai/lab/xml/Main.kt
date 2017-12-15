@@ -66,7 +66,7 @@ class XMLModifier(file_name: String){
                     println(it.text)
                 }
                 else if ((it).attributeValue("population").toInt()<20000000) {
-                    it.remove(it.attribute("text"))
+                    it.detach()
                 }
             }
         }
